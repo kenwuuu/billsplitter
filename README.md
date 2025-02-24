@@ -1,6 +1,7 @@
 # Libraries
 1. OCR: [tesseract](https://github.com/naptha/tesseract.js)
 2. Document detection: [jscanify](https://github.com/puffinsoft/jscanify)
+3. OCR but slightly optimized?: [WASM Tesseract](https://github.com/robertknight/tesseract-wasm?tab=readme-ov-file)
 
 # Flow
 
