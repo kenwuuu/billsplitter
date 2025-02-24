@@ -56,14 +56,15 @@
 
     <!-- Section to add menu items -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-menu-item-input" placeholder="Period Separated Items (e.g. Pizza,Burger.Pasta)" style="padding: 5px; width: 300px;"/>
+        <input type="text" id="new-menu-item-input" placeholder="Period Separated Items (e.g. Pizza,Burger.Pasta)"
+               style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addPersons()"/>
         <button onclick="addMenuItems()">Add Menu Items</button>
     </div>
 
     <!-- Section to add menu prices -->
     <div style="text-align: center; margin-bottom: 20px;">
         <input type="number" id="new-menu-price-input" placeholder="Space Separated Prices (e.g. 12.5 8.99 15)"
-               style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addPersons()"/>
+               style="padding: 5px; width: 300px;"/>
         <button onclick="addMenuPrices()">Add Menu Prices</button>
     </div>
 
@@ -92,7 +93,6 @@
             </tr>
         </tbody>
     </table>
-    <button onclick="addRow()">Add Item</button>
     <button onclick="calculateTotals()">Calculate Totals</button>
 
     <h2>Payment Summary</h2>
@@ -165,11 +165,6 @@
             `;
             table.appendChild(row);
             updateItemRows(); // Add checkboxes dynamically
-        }
-
-        // Function to add a blank row (when Add Item button is clicked)
-        function addRow() {
-            addItemRow(); // Add an empty row
         }
 
         // Function to update checkboxes for each row
