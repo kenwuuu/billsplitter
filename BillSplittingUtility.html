@@ -47,10 +47,22 @@
 <body>
     <h1>Bill Splitting Utility</h1>
 
-    <!-- Section to add new participants -->
+    <!-- Section to add participants -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-person-input" placeholder="Enter Names (e.g., Alice,Bob,Charlie)" style="padding: 5px; width: 300px;"/>
+        <input type="text" id="new-person-input" placeholder="Space Separated Names (e.g. Alice Bob Charlie)" style="padding: 5px; width: 300px;"/>
         <button onclick="addPersons()">Add Persons</button>
+    </div>
+
+    <!-- Section to add menu items -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <input type="text" id="new-menu-item-input" placeholder="Period Separated Items (e.g., Pizza,Burger.Pasta)" style="padding: 5px; width: 300px;"/>
+        <button onclick="addMenuItems()">Add Menu Items</button>
+    </div>
+
+    <!-- Section to add menu prices -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <input type="text" id="new-menu-price-input" placeholder="Space Separated Prices (e.g., 12.5 8.99 15)" style="padding: 5px; width: 300px;"/>
+        <button onclick="addMenuPrices()">Add Menu Prices</button>
     </div>
 
     <!-- Dynamic person list -->
@@ -100,7 +112,7 @@
         // Function to add new persons using comma-separated input
         function addPersons() {
             const personInput = document.getElementById('new-person-input');
-            const personNames = personInput.value.split(',').map(name => name.trim()).filter(name => name !== '');
+            const personNames = personInput.value.split(' ').map(name => name.trim()).filter(name => name !== '');
 
             personNames.forEach(person => {
                 if (!persons.includes(person)) {
@@ -126,7 +138,39 @@
             });
         }
 
-        // Function to update item rows with new checkboxes
+        // Function to add menu items dynamically. period+comma separated
+        function addMenuItems() {
+            const menuInput = document.getElementById('new-menu-item-input');
+            // Split menu items by commas or periods and remove empty entries
+            const menuItems = menuInput.value.split(/[,.]/).map(item => item.trim()).filter(item => item !== '');
+
+            menuItems.forEach(item => {
+                addItemRow(item); // Add each menu item to the table
+            });
+
+            menuInput.value = ''; // Clear input field
+        }
+
+        // Function to add a new row for menu items
+        function addItemRow(itemName = "") {
+            const table = document.getElementById('bill-items');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" value="${itemName}" placeholder="Item Name"></td>
+                <td><input type="number" step="0.01" placeholder="Price"></td>
+                <td class="split-checkboxes"></td>
+                <td><button onclick="removeRow(this)">Remove</button></td>
+            `;
+            table.appendChild(row);
+            updateItemRows(); // Add checkboxes dynamically
+        }
+
+        // Function to add a blank row (when Add Item button is clicked)
+        function addRow() {
+            addItemRow(); // Add an empty row
+        }
+
+        // Function to update checkboxes for each row
         function updateItemRows() {
             const rows = document.querySelectorAll('#bill-items tr .split-checkboxes');
             rows.forEach(cell => {
@@ -139,18 +183,21 @@
             });
         }
 
-        // Function to add a new row for menu items
-        function addRow() {
-            const table = document.getElementById('bill-items');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="text" placeholder="Item Name"></td>
-                <td><input type="number" step="0.01" placeholder="Price"></td>
-                <td class="split-checkboxes"></td>
-                <td><button onclick="removeRow(this)">Remove</button></td>
-            `;
-            table.appendChild(row);
-            updateItemRows(); // Add checkboxes dynamically
+        // Function to add space-separated prices to existing menu items
+        function addMenuPrices() {
+            const priceInput = document.getElementById('new-menu-price-input');
+            const prices = priceInput.value.trim().split(/\s+/).map(price => parseFloat(price)).filter(price => !isNaN(price));
+
+            // Get all price input fields in the table rows
+            const rows = document.querySelectorAll('#bill-items tr');
+            rows.forEach((row, index) => {
+                if (index < prices.length) {
+                    const priceField = row.querySelector('td:nth-child(2) input');
+                    priceField.value = prices[index].toFixed(2); // Assign price to each row
+                }
+            });
+
+            priceInput.value = ''; // Clear the input field
         }
 
         // Function to remove a row
