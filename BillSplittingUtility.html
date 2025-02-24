@@ -49,8 +49,8 @@
 
     <!-- Section to add new persons -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-person-input" placeholder="Enter Name" style="padding: 5px;"/>
-        <button onclick="addPerson()">Add Person</button>
+        <input type="text" id="new-person-input" placeholder="Enter Names (e.g., Alice,Bob,Charlie)" style="padding: 5px; width: 300px;"/>
+        <button onclick="addPersons()">Add Persons</button>
     </div>
 
     <!-- Dynamic person list -->
@@ -97,19 +97,25 @@
         // Array to store the list of persons
         const persons = [];
 
-        // Function to add new person
-        function addPerson() {
+        // Function to add new persons using comma-separated input
+        function addPersons() {
             const personInput = document.getElementById('new-person-input');
-            const personName = personInput.value.trim();
-            if (personName && !persons.includes(personName)) {
-                persons.push(personName);
+            const personNames = personInput.value.split(',').map(name => name.trim()).filter(name => name !== '');
+
+            personNames.forEach(person => {
+                if (!persons.includes(person)) {
+                    persons.push(person);
+                }
+            });
+
+            if (persons.length > 0) {
                 updatePersonList();
                 updateItemRows();
-                personInput.value = ''; // Clear input
+                personInput.value = ''; // Clear input field
             }
         }
 
-        // Function to update the list of persons
+        // Function to update the list of persons in the UI
         function updatePersonList() {
             const personList = document.getElementById('person-list');
             personList.innerHTML = ''; // Clear existing list
@@ -120,11 +126,11 @@
             });
         }
 
-        // Function to update the checkboxes in all item rows
+        // Function to update item rows with new checkboxes
         function updateItemRows() {
             const rows = document.querySelectorAll('#bill-items tr .split-checkboxes');
             rows.forEach(cell => {
-                cell.innerHTML = ''; // Clear previous checkboxes
+                cell.innerHTML = ''; // Clear existing checkboxes
                 persons.forEach(person => {
                     const label = document.createElement('label');
                     label.innerHTML = `<input type="checkbox" value="${person}" /> ${person}`;
@@ -167,7 +173,7 @@
                 const price = parseFloat(priceInput.value) || 0;
 
                 if (checkboxes.length > 0) {
-                    const share = price / checkboxes.length; // Divide price equally among checked persons
+                    const share = price / checkboxes.length; // Split price equally among selected persons
                     checkboxes.forEach(checkbox => {
                         const person = checkbox.value;
                         totals[person] += share;
