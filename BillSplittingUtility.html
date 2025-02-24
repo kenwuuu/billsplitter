@@ -47,7 +47,7 @@
 <body>
     <h1>Bill Splitting Utility</h1>
 
-    <!-- Section to add new persons -->
+    <!-- Section to add new participants -->
     <div style="text-align: center; margin-bottom: 20px;">
         <input type="text" id="new-person-input" placeholder="Enter Names (e.g., Alice,Bob,Charlie)" style="padding: 5px; width: 300px;"/>
         <button onclick="addPersons()">Add Persons</button>
@@ -139,7 +139,7 @@
             });
         }
 
-        // Function to add a new row for items
+        // Function to add a new row for menu items
         function addRow() {
             const table = document.getElementById('bill-items');
             const row = document.createElement('tr');
@@ -172,13 +172,19 @@
                 const checkboxes = row.querySelectorAll('.split-checkboxes input:checked');
                 const price = parseFloat(priceInput.value) || 0;
 
+                let involvedPersons = [];
                 if (checkboxes.length > 0) {
-                    const share = price / checkboxes.length; // Split price equally among selected persons
-                    checkboxes.forEach(checkbox => {
-                        const person = checkbox.value;
-                        totals[person] += share;
-                    });
+                    // Add only the selected persons
+                    involvedPersons = Array.from(checkboxes).map(checkbox => checkbox.value);
+                } else {
+                    // If no checkboxes are selected, assume all persons
+                    involvedPersons = persons;
                 }
+
+                const share = price / involvedPersons.length; // Divide price equally among involved persons
+                involvedPersons.forEach(person => {
+                    totals[person] += share;
+                });
             });
 
             const summaryTable = document.getElementById('payment-summary');
