@@ -246,6 +246,16 @@
                 summaryTable.appendChild(row);
             });
         }
+
+
+        // Call the delete button functionality for the first menu item on page load
+        // todo this is a hacky way to fix the bug where adding new menu items starts from the second row
+        window.onload = function() {
+            const firstDeleteButton = document.querySelector('#bill-items tr:first-child button');
+            if (firstDeleteButton) {
+                firstDeleteButton.click(); // Simulate a click on the delete button
+            }
+        };
     </script>
 </body>
 </html>
