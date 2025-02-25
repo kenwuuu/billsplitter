@@ -30,7 +30,7 @@
             cv.convertScaleAbs(mat, mat, alpha, beta);
 
             // cv.Canny(mat, mat, 200, 150);
-            //Need to "Deskew" image here
+            //TODO: Need to "Deskew" image here
             const moments = cv.moments(mat, false); 
             // const angle = cv.minAreaRect(moments);
             // const rotationMatrix = cv.getRotationMatrix2D(new cv.Point(mat.cols / 2, mat.rows / 2), angle, 1);
