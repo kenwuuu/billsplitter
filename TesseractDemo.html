@@ -9,6 +9,8 @@
     <div id="result"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="opencv.js" type="text/javascript"></script>
+
     <script>
         async function performOCR() {
             const input = document.getElementById('imageInput');
@@ -19,16 +21,87 @@
                 resultDiv.innerText = 'Please select an image.';
                 return;
             }
+            console.log(file);
+            processAndRecognize(file.name);
+            // try {
+            //     const worker = await Tesseract.createWorker('eng');
+            //     const ret = await worker.recognize(file);
+            //     resultDiv.innerText = ret.data.text;
+            //     await worker.terminate();
+            // } catch (error) {
+            //     console.error('OCR Error:', error);
+            //     resultDiv.innerText = 'Error during OCR processing.';
+            // }
+        }
+        function processAndRecognize(imagePath) {
+            console.log(cv);
+            let image = cv.imread(imagePath);
 
-            try {
-                const worker = await Tesseract.createWorker('eng');
-                const ret = await worker.recognize(file);
-                resultDiv.innerText = ret.data.text;
-                await worker.terminate();
-            } catch (error) {
-                console.error('OCR Error:', error);
-                resultDiv.innerText = 'Error during OCR processing.';
-            }
+            // Preprocessing steps
+            image = convertToGrayscale(image);
+            image = thresholdImage(image);
+            image = denoiseImage(image);
+
+            // Perform OCR
+            recognizeText(image);
+        }
+        function recognizeText(image) {
+            Tesseract.recognize(
+                image,  // The processed image
+                'eng',  // Language (can use multiple languages)
+                {
+                    logger: (m) => console.log(m),  // Optional logging of progress
+                }
+            ).then(({ data: { text } }) => {
+                console.log("OCR Result:", text);
+            });
+        }
+
+        function convertToGrayscale(image) {
+            const mat = cv.imread(image);  // Read the image
+            cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY); // Convert to grayscale
+            cv.imshow('outputCanvas', mat);  // Display the output
+            return mat;
+        }
+        function thresholdImage(image) {
+            const mat = cv.imread(image);
+            cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY);  // Convert to grayscale
+            cv.threshold(mat, mat, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU); // Apply Otsu's thresholding
+            cv.imshow('outputCanvas', mat);  // Show the result
+            return mat;
+        }
+        function denoiseImage(image) {
+            const mat = cv.imread(image);
+            cv.medianBlur(mat, mat, 5);  // Apply median blur for denoising
+            cv.imshow('outputCanvas', mat);  // Display the result
+            return mat;
+        }
+        function deskewImage(image) {
+            const mat = cv.imread(image);
+            cv.cvtColor(mat, mat, cv.COLOR_RGBA2GRAY);
+            cv.threshold(mat, mat, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
+            // Perform rotation based on angle detected using HoughLines
+            const moments = cv.moments(mat, false);
+            const angle = 0.0; // Logic to calculate the skew angle
+            let center = new cv.Point(mat.cols / 2, mat.rows / 2);
+            let rotationMatrix = cv.getRotationMatrix2D(center, angle, 1);
+            cv.warpAffine(mat, mat, rotationMatrix, mat.size(), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+            cv.imshow('outputCanvas', mat);  // Show the result
+            return mat;
+        }
+        function resizeImage(image, scaleFactor) {
+            const mat = cv.imread(image);
+            const newSize = new cv.Size(mat.cols * scaleFactor, mat.rows * scaleFactor);
+            cv.resize(mat, mat, newSize, 0, 0, cv.INTER_CUBIC);  // Increase resolution
+            cv.imshow('outputCanvas', mat);
+            return mat;
+        }
+        function enhanceContrast(image) {
+            const mat = cv.imread(image);
+            const newMat = new cv.Mat();
+            cv.convertTo(mat, newMat, -1, 2, 0); // Multiply by a factor (e.g., 2)
+            cv.imshow('outputCanvas', newMat);
+            return newMat;
         }
     </script>
 </body>

@@ -1,0 +1,73 @@
+<div style="border: thin solid black;">
+ 
+    <div>
+        <h2>OpenCV.js Magic box</h2>
+        <p id="status">OpenCV.js status: Loading...</p>
+        <div>
+            <div class="row-align">
+                <img id="imageSrc" style="border: none;" />
+                <canvas id="canvasOutput" width="300"></canvas>
+            </div>
+ 
+            <input type="file" id="fileInput" name="file" />
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script type="text/javascript">
+        let imgElement = document.getElementById('imageSrc');
+        let inputElement = document.getElementById('fileInput');
+        inputElement.addEventListener('change', (e) => {
+            imgElement.src = URL.createObjectURL(e.target.files[0]);
+        }, false);
+        imgElement.onload = function () {
+            let mat = cv.imread(imgElement);
+            cv.cvtColor(mat, mat, cv.COLOR_RGB2GRAY, 0);
+
+            cv.GaussianBlur(mat, mat, new cv.Size(5, 5), 0);
+            // cv.Canny(mat, mat, 0, 255, 3, false);
+
+            let alpha = 1.5, beta = 0; // Contrast control
+            cv.convertScaleAbs(mat, mat, alpha, beta);
+
+            // cv.Canny(mat, mat, 200, 150);
+            //Need to "Deskew" image here
+            const moments = cv.moments(mat, false); 
+            // const angle = cv.minAreaRect(moments);
+            // const rotationMatrix = cv.getRotationMatrix2D(new cv.Point(mat.cols / 2, mat.rows / 2), angle, 1);
+            // const rotated = new cv.Mat();
+            // cv.warpAffine(image, rotated, rotationMatrix, new cv.Size(mat.cols, mat.rows));
+
+            // Calculate skew angle from image moments
+            
+            
+            cv.imshow('canvasOutput', mat);
+            mat.delete();
+
+            const img = new Image();
+            const canvas = document.getElementById('canvasOutput');
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            preprocessAndOCR(canvas);
+        };
+        function onOpenCvReady() {
+            document.getElementById('status').innerHTML = 'OpenCV.js status: Ready.';
+        }
+
+        function preprocessAndOCR(canvas) {
+            // Preprocess image using canvas methods like getImageData(), manipulate pixels, etc.
+
+            // Use Tesseract to recognize text from the canvas
+            Tesseract.recognize(
+                canvas,
+                'eng',
+                {
+                    logger: (m) => console.log(m),
+                }
+            ).then(({ data: { text } }) => {
+                console.log("OCR Result:", text);
+            });
+        }
+    </script>
+ 
+    <script async src="https://docs.opencv.org/4.5.4/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+</div>
