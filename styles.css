@@ -1,0 +1,41 @@
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #000;
+    text-align: center;
+    padding: 8px;
+}
+
+th {
+    background-color: #f0f0f0;
+}
+
+button {
+    display: block;
+    margin: 20px auto;
+}
+
+h1, h2 {
+    text-align: center;
+}
+
+.person-checkboxes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.person-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+input {
+    font-size: 16px;
+}
