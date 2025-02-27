@@ -42,6 +42,10 @@
             align-items: center;
             gap: 5px;
         }
+
+        input {
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -50,21 +54,21 @@
     <!-- Section to add participants -->
     <div style="text-align: center; margin-bottom: 20px;">
         <input type="text" id="new-person-input" placeholder="Space Separated Names (e.g. Alice Bob Charlie)"
-               style="padding: 5px; width: 300px; font-size: 16px;" onkeydown="if(event.key === 'Enter') addPersons()"/>
+               style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addPersons()"/>
         <button onclick="addPersons()">Add Persons</button>
     </div>
 
     <!-- Section to add menu items -->
     <div style="text-align: center; margin-bottom: 20px;">
         <input type="text" id="new-menu-item-input" placeholder="Period Separated Items (e.g. Pizza,Burger.Pasta)"
-               style="padding: 5px; width: 300px; font-size: 16px;" onkeydown="if(event.key === 'Enter') addMenuItems()"/>
+               style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addMenuItems()"/>
         <button onclick="addMenuItems()">Add Menu Items</button>
     </div>
 
     <!-- Section to add menu prices -->
     <div style="text-align: center; margin-bottom: 20px;">
         <input type="number" id="new-menu-price-input" placeholder="Space Separated Prices (e.g. 12.5 8.99 15)"
-               style="padding: 5px; width: 300px; font-size: 16px;"/>
+               style="padding: 5px; width: 300px;"/>
         <button onclick="addMenuPrices()">Add Menu Prices</button>
     </div>
 
@@ -139,6 +143,26 @@
                 label.innerHTML = `<input type="checkbox" disabled /> ${person}`;
                 personList.appendChild(label);
             });
+        }
+
+        function updateTabIndex() {
+            // Get all rows in the table body
+            const rows = document.querySelectorAll('#bill-items tr');
+
+            // Iterate through each column
+            let columnCount = 2; // Number of columns with inputs (Item Name, Price)
+
+            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
+                for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+                    const row = rows[rowIndex];
+                    const input = row.querySelectorAll('input')[columnIndex];
+
+                    if (input) {
+                        // Set tabindex for column-wise order
+                        input.tabIndex = columnIndex + (rowIndex * columnCount);
+                    }
+                }
+            }
         }
 
         // Function to add menu items dynamically. period+comma separated
@@ -253,6 +277,8 @@
                 firstDeleteButton.click(); // Simulate a click on the delete button
             }
         };
+
+
     </script>
 </body>
 </html>
