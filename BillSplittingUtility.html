@@ -178,6 +178,27 @@
             menuInput.value = ''; // Clear input field
         }
 
+        function update_tab_index() {
+            const rows = document.querySelectorAll('#bill-items tr');
+            let tabIndex = 1;
+
+            // First, assign tabindex to the first column of each row
+            rows.forEach(row => {
+                const firstColumnInput = row.querySelector('td:first-child input');
+                if (firstColumnInput) {
+                    firstColumnInput.setAttribute('tabindex', tabIndex++);
+                }
+            });
+
+            // Then, assign tabindex to the second column of each row
+            rows.forEach(row => {
+                const secondColumnInput = row.querySelector('td:nth-child(2) input');
+                if (secondColumnInput) {
+                    secondColumnInput.setAttribute('tabindex', tabIndex++);
+                }
+            });
+        }
+
         // Function to add a new row for menu items
         function addItemRow(itemName = "") {
             const table = document.getElementById('bill-items');
@@ -189,7 +210,8 @@
                 <td><button onclick="removeRow(this)">Remove</button></td>
             `;
             table.appendChild(row);
-            updateItemRows(); // Add checkboxes dynamically
+            updateItemRows(); // Add checkboxes dynamically for the new row
+            update_tab_index(); // Update tabindex after adding the row
         }
 
         // Function to update checkboxes for each row
@@ -226,6 +248,7 @@
         function removeRow(button) {
             const row = button.parentElement.parentElement;
             row.remove();
+            update_tab_index(); // Update tabindex after removing the row
         }
 
         // Function to calculate totals
