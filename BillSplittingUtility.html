@@ -84,7 +84,7 @@
         // Array to store the list of persons
         const persons = [];
 
-        // Function to add new persons using comma-separated input
+        // Function to add new persons using space-separated input
         function addPersons() {
             const personInput = document.getElementById('new-person-input');
             const personNames = personInput.value.split(' ').map(name => name.trim()).filter(name => name !== '');
@@ -192,13 +192,37 @@
         }
 
         // Function to update checkboxes for each row
+        const checkboxStates = {};
         function updateItemRows() {
-            const rows = document.querySelectorAll('#bill-items tr .split-checkboxes');
-            rows.forEach(cell => {
+            const rows = document.querySelectorAll('#bill-items tr');
+            rows.forEach((row, rowIndex) => {
+                const cell = row.querySelector('.split-checkboxes');
+                if (!cell) return; // Skip rows without the split-checkboxes cell
+
+                // Initialize checkbox state
+                if (!checkboxStates[rowIndex]) {
+                    checkboxStates[rowIndex] = {};
+                }
+
                 cell.innerHTML = ''; // Clear existing checkboxes
                 persons.forEach(person => {
                     const label = document.createElement('label');
-                    label.innerHTML = `<input type="checkbox" value="${person}" /> ${person}`;
+
+                    // Create the checkbox
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = person;
+
+                    // Restore previous state if it exists
+                    checkbox.checked = !!checkboxStates[rowIndex][person];
+
+                    // Listen for changes to update the state
+                    checkbox.addEventListener('change', () => {
+                        checkboxStates[rowIndex][person] = checkbox.checked;
+                    });
+
+                    label.appendChild(checkbox);
+                    label.append(` ${person}`);
                     cell.appendChild(label);
                 });
             });
