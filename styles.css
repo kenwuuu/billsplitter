@@ -49,10 +49,6 @@ td input[type="text"] input[type="tel"]{
     box-sizing: border-box; /* Include padding/borders in the width calculation */
 }
 
-td {
-    overflow: hidden; /* Prevent any overflow issues */
-}
-
 .split-checkboxes label {
     display: inline-flex;
     align-items: center; /* Vertically align text with the checkbox */
