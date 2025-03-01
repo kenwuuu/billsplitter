@@ -102,7 +102,14 @@ td input[type="text"] {
     transition: opacity 0.2s; /* Smooth fade-in effect */
 }
 
+/* Show on hover (desktop support) */
 .tooltip:hover .tooltip-text {
+    visibility: visible; /* Show the tooltip on hover */
+    opacity: 1; /* Fully visible */
+}
+
+/* Show on touch interaction or click for mobile */
+.tooltip.active .tooltip-text {
     visibility: visible; /* Show the tooltip on hover */
     opacity: 1; /* Fully visible */
 }
