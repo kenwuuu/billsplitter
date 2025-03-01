@@ -49,6 +49,7 @@
             </tr>
         </tbody>
     </table>
+    <h3 style="text-align: center;">Confirm the Subtotal: $<span id="subtotal">0.00</span></h3>
     <button onclick="calculateTotals()">Calculate Totals</button>
 
     <h2>Payment Summary</h2>
@@ -96,24 +97,28 @@
             });
         }
 
-        function updateTabIndex() {
-            // Get all rows in the table body
-            const rows = document.querySelectorAll('#bill-items tr');
+        function updateSubtotal() {
+            const priceInputs = document.querySelectorAll('#bill-items input[type="number"]');
+            let subtotal = 0;
 
-            // Iterate through each column
-            let columnCount = 2; // Number of columns with inputs (Item Name, Price)
-
-            for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-                    const row = rows[rowIndex];
-                    const input = row.querySelectorAll('input')[columnIndex];
-
-                    if (input) {
-                        // Set tabindex for column-wise order
-                        input.tabIndex = columnIndex + (rowIndex * columnCount);
-                    }
+            priceInputs.forEach(input => {
+                const price = parseFloat(input.value);
+                if (!isNaN(price)) {
+                    subtotal += price;
                 }
-            }
+            });
+
+            const subtotalElement = document.getElementById('subtotal');
+            subtotalElement.textContent = subtotal.toFixed(2);
+        }
+
+        // Attach the updateSubtotal function to all price inputs
+        function attachSubtotalListeners() {
+            const priceInputs = document.querySelectorAll('#bill-items input[type="number"]');
+            priceInputs.forEach(input => {
+                input.removeEventListener('input', updateSubtotal); // Remove to prevent duplicate listeners
+                input.addEventListener('input', updateSubtotal);
+            });
         }
 
         // Function to add menu items dynamically. period+comma separated
@@ -127,6 +132,9 @@
             });
 
             menuInput.value = ''; // Clear input field
+
+            // After adding new items, reattach listeners to all inputs
+            attachSubtotalListeners();
         }
 
         function update_tab_index() {
