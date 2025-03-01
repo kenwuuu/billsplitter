@@ -43,7 +43,7 @@ input {
 }
 
 /* NEW: Constrain input box width to 90% of column width */
-td input[type="text"] input[type="number"]{
+td input[type="text"] input[type="tel"]{
     width: 90%; /* Input occupies 90% of the cell’s width */
     max-width: 90%; /* Extra safety to avoid overflow */
     box-sizing: border-box; /* Include padding/borders in the width calculation */

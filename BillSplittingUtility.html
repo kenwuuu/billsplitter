@@ -43,7 +43,7 @@
             <tr>
 <!--            todo make this not zoom in on mobile by increasing font size to 16-->
                 <td><input type="text" placeholder="Item Name"></td>
-                <td><input type="number" step="0.01" placeholder="Price"></td>
+                <td><input type="tel" placeholder="Price"></td>
                 <td class="split-checkboxes"></td>
                 <td><button onclick="removeRow(this)">Remove</button></td>
             </tr>
@@ -52,7 +52,7 @@
     <h3 style="text-align: center;">Confirm the Subtotal: $<span id="subtotal">0.00</span></h3>
     <div style="text-align: center; margin-bottom: 20px;">
         <label for="total-input">Total (including tip & tax): $</label>
-        <input type="number" id="total-input" step="0.01" placeholder="Total Amount"/>
+        <input type="tel" id="total-input" placeholder="Total Amount"/>
     </div>
     <button onclick="calculateTotals()">Calculate Totals</button>
 
@@ -102,7 +102,7 @@
         }
 
         function updateSubtotal() {
-            const priceInputs = document.querySelectorAll('#bill-items input[type="number"]');
+            const priceInputs = document.querySelectorAll('#bill-items input[type="tel"]');
             let subtotal = 0.0;
 
             priceInputs.forEach(input => {
@@ -120,7 +120,7 @@
 
         // Attach the updateSubtotal function to all price inputs
         function attachSubtotalListeners() {
-            const priceInputs = document.querySelectorAll('#bill-items input[type="number"]');
+            const priceInputs = document.querySelectorAll('#bill-items input[type="tel"]');
             priceInputs.forEach(input => {
                 input.removeEventListener('input', updateSubtotal); // Remove to prevent duplicate listeners
                 input.addEventListener('input', updateSubtotal);
@@ -170,7 +170,7 @@
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td><input type="text" value="${itemName}" placeholder="Item Name"></td>
-                <td><input type="number" step="0.01" placeholder="Price"></td>
+                <td><input type="tel" placeholder="Price"></td>
                 <td class="split-checkboxes"></td>
                 <td><button onclick="removeRow(this)">Remove</button></td>
             `;
@@ -286,12 +286,12 @@
             }
 
             // Attach listener to existing number inputs
-            document.querySelectorAll('input[type="number"]').forEach(attachListeners);
+            document.querySelectorAll('input[type="tel"]').forEach(attachListeners);
 
             // Attach listener to newly added rows
             const billItemsContainer = document.getElementById('bill-items');
             new MutationObserver(() => {
-                billItemsContainer.querySelectorAll('input[type="number"]').forEach((input) => {
+                billItemsContainer.querySelectorAll('input[type="tel"]').forEach((input) => {
                     if (!input.hasAttribute('data-listener-attached')) {
                         attachListeners(input);
                         input.setAttribute('data-listener-attached', 'true');
