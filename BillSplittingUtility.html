@@ -21,16 +21,20 @@
 
     <!-- Section to add participants -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-person-input" placeholder="Person Name (press Enter to add)"
-               style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addPersons()"/>
-<!--        <button onclick="addPersons()">Add Person</button>-->
+        <form autocomplete="off" onsubmit="addPersons(); return false;">
+            <input type="text" id="new-person-input" placeholder="Person Name (press Enter to add)"
+                   style="padding: 5px; width: 300px;" autocomplete="off"/>
+            <button type="submit" style="display: none;">Add Person</button>
+        </form>
     </div>
 
     <!-- Section to add menu items -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-menu-item-input" placeholder="Item Name (press Enter to add)"
-               style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addMenuItems()"/>
-<!--        <button form="new-menu-item-input" onclick="addMenuItems()">Add Item</button>-->
+        <form autocomplete="off" onsubmit="addMenuItem(); return false;">
+            <input type="text" id="new-menu-item-input" placeholder="Item Name (press Enter to add)"
+                   style="padding: 5px; width: 300px;" autocomplete="off"/>
+            <button type="submit" style="display: none;">Add Item</button>
+        </form>
     </div>
 
     <!-- Dynamic person list -->
@@ -143,8 +147,8 @@
             });
         }
 
-        // Function to add menu items dynamically. period+comma separated
-        function addMenuItems() {
+        // Function to add menu item dynamically. period+comma separated
+        function addMenuItem() {
             const menuInput = document.getElementById('new-menu-item-input');
             // Split menu items by commas or periods and remove empty entries
             const menuItems = menuInput.value.split(/[,.]/).map(item => item.trim()).filter(item => item !== '');
@@ -185,7 +189,7 @@
             const table = document.getElementById('bill-items');
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><input type="text" value="${itemName}" placeholder="Item Name"></td>
+                <td><input type="text" value="${itemName}" placeholder="Item Name" autocomplete="off"></td>
                 <td><input type="tel" placeholder="Price"></td>
                 <td class="split-checkboxes"></td>
                 <td><button onclick="removeRow(this)">Remove</button></td>
