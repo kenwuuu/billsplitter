@@ -79,3 +79,30 @@ td input[type="text"] {
     background: rgba(0, 0, 0, 0.5); /* Black background with 50% opacity for dimming */
     z-index: 999; /* Place it beneath the popup but above the rest of the page */
 }
+
+.tooltip {
+    position: relative; /* Needed for positioning the tooltip */
+    cursor: help; /* Optional, indicates additional info is available */
+}
+
+.tooltip-text {
+    visibility: hidden; /* Initially hide the tooltip */
+    width: 180px; /* Adjust the width as needed */
+    background-color: #555; /* Dark background for the tooltip */
+    color: #fff; /* White text color for contrast */
+    text-align: center; /* Center-align the text */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px;
+    position: absolute; /* Positioned relative to the parent element */
+    bottom: 120%; /* Place it slightly above the element */
+    left: 50%; /* Center the tooltip horizontally */
+    transform: translateX(-50%); /* Center adjustment */
+    z-index: 1; /* Ensure it appears above other elements */
+    opacity: 0; /* Initially invisible */
+    transition: opacity 0.2s; /* Smooth fade-in effect */
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible; /* Show the tooltip on hover */
+    opacity: 1; /* Fully visible */
+}
