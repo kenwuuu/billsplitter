@@ -52,3 +52,16 @@ td input[type="text"] input[type="number"]{
 td {
     overflow: hidden; /* Prevent any overflow issues */
 }
+
+.split-checkboxes label {
+    display: inline-flex;
+    align-items: center; /* Vertically align text with the checkbox */
+    gap: 4px; /* Space between checkbox and label */
+    white-space: nowrap; /* Prevent wrapping inside the label */
+    padding-right: 10px;
+}
+
+.split-checkboxes input[type="checkbox"] {
+    margin: 0; /* Reset default margins to avoid extra spacing issues */
+    display: inline-block; /* Ensure it stays inline with label */
+}
