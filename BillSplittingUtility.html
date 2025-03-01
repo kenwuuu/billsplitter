@@ -50,6 +50,10 @@
         </tbody>
     </table>
     <h3 style="text-align: center;">Confirm the Subtotal: $<span id="subtotal">0.00</span></h3>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <label for="total-input">Total (including tip & tax): $</label>
+        <input type="number" id="total-input" step="0.01" placeholder="Total Amount"/>
+    </div>
     <button onclick="calculateTotals()">Calculate Totals</button>
 
     <h2>Payment Summary</h2>
@@ -192,11 +196,29 @@
             row.remove();
             update_tab_index(); // Update tabindex after removing the row
         }
+        
+        // Calculate percentage increase between subtotal and total
+        function calculatePercentageIncreaseMultiplier() {
+            const total = parseFloat(document.getElementById('total-input').value)
+            const subtotal = parseFloat(document.getElementById('subtotal').textContent);
+            
+            if (subtotal === 0) return 0; // Avoid division by zero
+            if (!total || total === 0) return 1; // if total is null, undefined, or 0, then return 1
+            if (total < subtotal) {
+                alert("Total cannot be less than subtotal.");
+                document.getElementById('total-input').value = ''; // Clear total input
+                return 1; // Return 1 as a safe default multiplier
+            }
+            
+            return Math.abs((total - subtotal) / subtotal) + 1;
+        }
 
         // Function to calculate totals
         function calculateTotals() {
             const rows = document.querySelectorAll('#bill-items tr');
             const totals = {};
+            const percentage_increase_multiplier = calculatePercentageIncreaseMultiplier();
+            console.log(percentage_increase_multiplier);
 
             // Initialize totals for each person
             persons.forEach(person => totals[person] = 0);
@@ -227,7 +249,7 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${person}</td>
-                    <td>${totals[person].toFixed(2)}</td>
+                    <td>${(totals[person] * percentage_increase_multiplier).toFixed(2)}</td>
                 `;
                 summaryTable.appendChild(row);
             });
