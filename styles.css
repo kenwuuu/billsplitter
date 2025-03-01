@@ -68,3 +68,14 @@ td input[type="text"] {
 .hidden {
     display: none;
 }
+
+#overlay {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Black background with 50% opacity for dimming */
+    z-index: 999; /* Place it beneath the popup but above the rest of the page */
+}

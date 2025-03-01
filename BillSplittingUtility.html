@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="overlay"></div> <!-- This is the dimming overlay -->
+    <div id="popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; border: 1px solid black; padding: 20px; background: white; text-align: center; z-index: 1000;">
+        <h3>Tip!</h3>
+        <p> To speed up splitting: if no one is selected in <b>Split With</b> column, then the item is split with everyone.</p>
+        <label>
+            <input type="checkbox" id="dont-show-again" /> Don't show this again
+        </label>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
     <h1>Bill Splitting Utility</h1>
 
     <!-- Section to add participants -->
@@ -264,13 +274,14 @@
             });
         }
 
-        // Call the delete button functionality for the first menu item on page load
-        // todo this is a hacky way to fix the bug where adding new menu items starts from the second row
         window.onload = function() {
+            // Call the delete button functionality for the first menu item on page load
+            // todo this is a hacky way to fix the bug where adding new menu items starts from the second row
             const firstDeleteButton = document.querySelector('#bill-items tr:first-child button');
             if (firstDeleteButton) {
                 firstDeleteButton.click(); // Simulate a click on the delete button
             }
+            checkPopupPreference();
         };
 
         // everything below is to format all number inputs automatically with decimals
@@ -306,6 +317,35 @@
                 });
             }).observe(billItemsContainer, { childList: true });
         });
+
+        // check if popup should be shown
+        function checkPopupPreference() {
+            // Check if "dontShowPopup" is set in localStorage
+            const dontShowPopup = localStorage.getItem('dontShowPopup');
+
+            // Display popup if no cookie
+            if (!dontShowPopup) {
+                const popup = document.getElementById('popup');
+                const overlay = document.getElementById('overlay');
+                popup.style.display = 'block';
+                overlay.style.display = 'block';
+            }
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            const overlay = document.getElementById('overlay');
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+
+            // save cookie if "Don't Show Again" is checked
+            const dontShowAgainCheckbox = document.getElementById('dont-show-again');
+            if (dontShowAgainCheckbox.checked) {
+                // Save preference in localStorage
+                localStorage.setItem('dontShowPopup', 'true');
+            }
+        }
     </script>
 </body>
 </html>
