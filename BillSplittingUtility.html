@@ -11,16 +11,16 @@
 
     <!-- Section to add participants -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-person-input" placeholder="Space Separated Names (e.g. Alice Bob Charlie)"
+        <input type="text" id="new-person-input" placeholder="Person Name"
                style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addPersons()"/>
-        <button onclick="addPersons()">Add Persons</button>
+        <button onclick="addPersons()">Add Person</button>
     </div>
 
     <!-- Section to add menu items -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="new-menu-item-input" placeholder="Period Separated Items (e.g. Pizza,Burger.Pasta)"
+        <input type="text" id="new-menu-item-input" placeholder="Item Name"
                style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addMenuItems()"/>
-        <button form="new-menu-item-input" onclick="addMenuItems()">Add Menu Items</button>
+        <button form="new-menu-item-input" onclick="addMenuItems()">Add Item</button>
     </div>
 
     <!-- Dynamic person list -->
@@ -51,22 +51,25 @@
     </table>
     <h3 style="text-align: center;">Confirm the Subtotal: $<span id="subtotal">0.00</span></h3>
     <div style="text-align: center; margin-bottom: 20px;">
-        <label for="total-input">Total (including tip & tax): $</label>
-        <input type="tel" id="total-input" placeholder="Total Amount"/>
+        <label for="total-input">Total (include tip & tax):</label>
+        <input type="tel" id="total-input" placeholder="Total"/>
     </div>
-    <button onclick="calculateTotals()">Calculate Totals</button>
+    <button onclick="calculateSplit()">Calculate Split</button>
 
-    <h2>Payment Summary</h2>
-    <table style="width: 50%; margin: 0 auto;">
-        <thead>
+    <div id="payment-summary-section" class="hidden">
+        <h2>Payment Summary</h2>
+        <h4>"Total Payment" includes each person's share of tip and tax.</h4>
+        <table style="width: 50%; margin: 0 auto;">
+            <thead>
             <tr>
                 <th>Person</th>
                 <th>Total Payment</th>
             </tr>
-        </thead>
-        <tbody id="payment-summary">
-        </tbody>
-    </table>
+            </thead>
+            <tbody id="payment-summary">
+            </tbody>
+        </table>
+    </div>
 
     <script>
         // Array to store the list of persons
@@ -216,7 +219,7 @@
         }
 
         // Function to calculate totals
-        function calculateTotals() {
+        function calculateSplit() {
             const rows = document.querySelectorAll('#bill-items tr');
             const totals = {};
             const percentage_increase_multiplier = calculatePercentageIncreaseMultiplier();
@@ -243,6 +246,10 @@
                 involvedPersons.forEach(person => {
                     totals[person] += share;
                 });
+
+                // After calculating the result, unhide payment section
+                const paymentSummarySection = document.getElementById('payment-summary-section');
+                paymentSummarySection.classList.remove('hidden'); // Remove the `hidden` class to make it visible
             });
 
             const summaryTable = document.getElementById('payment-summary');

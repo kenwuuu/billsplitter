@@ -1,5 +1,5 @@
 table {
-    width: 80%;
+    width: 95%;
     margin: 20px auto;
     border-collapse: collapse;
     table-layout: fixed; /* Prevent dynamic resizing of columns */
@@ -20,7 +20,7 @@ button {
     margin: 20px auto;
 }
 
-h1, h2 {
+h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 
@@ -63,4 +63,8 @@ td input[type="text"] {
 .split-checkboxes input[type="checkbox"] {
     margin: 0; /* Reset default margins to avoid extra spacing issues */
     display: inline-block; /* Ensure it stays inline with label */
+}
+
+.hidden {
+    display: none;
 }
