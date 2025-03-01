@@ -20,7 +20,7 @@
     <div style="text-align: center; margin-bottom: 20px;">
         <input type="text" id="new-menu-item-input" placeholder="Period Separated Items (e.g. Pizza,Burger.Pasta)"
                style="padding: 5px; width: 300px;" onkeydown="if(event.key === 'Enter') addMenuItems()"/>
-        <button onclick="addMenuItems()">Add Menu Items</button>
+        <button form="new-menu-item-input" onclick="addMenuItems()">Add Menu Items</button>
     </div>
 
     <!-- Dynamic person list -->
@@ -103,12 +103,14 @@
 
         function updateSubtotal() {
             const priceInputs = document.querySelectorAll('#bill-items input[type="number"]');
-            let subtotal = 0;
+            let subtotal = 0.0;
 
             priceInputs.forEach(input => {
-                const price = parseFloat(input.value);
+                const raw_number = input.value.replace(/\./g, '').replace(/^0+/, ''); // parse dec as int. e.g. 32.83 as 3283
+                const price = parseFloat(parseInt(raw_number) / 100).toFixed(2);
+
                 if (!isNaN(price)) {
-                    subtotal += price;
+                    subtotal = parseFloat(price) + parseFloat(subtotal);
                 }
             });
 
@@ -226,9 +228,9 @@
             rows.forEach(row => {
                 const priceInput = row.querySelector('td:nth-child(2) input');
                 const checkboxes = row.querySelectorAll('.split-checkboxes input:checked');
-                const price = parseFloat(priceInput.value) || 0;
+                const price = parseFloat(priceInput.value);
 
-                let involvedPersons = [];
+                let involvedPersons;
                 if (checkboxes.length > 0) {
                     // Add only the selected persons
                     involvedPersons = Array.from(checkboxes).map(checkbox => checkbox.value);
@@ -263,6 +265,40 @@
                 firstDeleteButton.click(); // Simulate a click on the delete button
             }
         };
+
+        // everything below is to format all number inputs automatically with decimals
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to format input as currency (automatically insert decimal)
+            function formatAsCurrency(input) {
+                let value = input.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+
+                if (value) {
+                    // Add decimal formatting
+                    value = (parseInt(value) / 100).toFixed(2); // Divide by 100 and format to 2 decimal places
+                }
+                input.value = value;
+            }
+
+            // Add event listener to all relevant inputs on the page
+            function attachListeners(input) {
+                input.addEventListener('input', () => formatAsCurrency(input));
+                input.addEventListener('paste', () => setTimeout(() => formatAsCurrency(input), 0));
+            }
+
+            // Attach listener to existing number inputs
+            document.querySelectorAll('input[type="number"]').forEach(attachListeners);
+
+            // Attach listener to newly added rows
+            const billItemsContainer = document.getElementById('bill-items');
+            new MutationObserver(() => {
+                billItemsContainer.querySelectorAll('input[type="number"]').forEach((input) => {
+                    if (!input.hasAttribute('data-listener-attached')) {
+                        attachListeners(input);
+                        input.setAttribute('data-listener-attached', 'true');
+                    }
+                });
+            }).observe(billItemsContainer, { childList: true });
+        });
     </script>
 </body>
 </html>
