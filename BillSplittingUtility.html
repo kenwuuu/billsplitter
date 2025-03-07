@@ -49,15 +49,13 @@
                 </div>
 
                 <!-- Items table -->
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>Menu Item</th>
                             <th>Price</th>
                             <th>Split With
-                            <a class="tooltip" onclick="toggleTooltip(this)" ontouchstart="toggleTooltip(this)"> ?⃝
-                                <span class="tooltip-text">Duplicate names are not allowed.</span>
-                            </a>
+                                <a class="tooltip" data-tip="Duplicate names are not allowed."> ?⃝</a>
                             </th>
                             <th>Action</th>
                         </tr>
@@ -195,10 +193,12 @@
                         const table = document.getElementById('bill-items');
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td><input type="text" value="${itemName}" placeholder="Item Name" autocomplete="off"></td>
-                            <td><input type="tel" placeholder="Price"></td>
+                            <td><input class="input input-primary" type="text" value="${itemName}" placeholder="Item Name" autocomplete="off"></td>
+                            <td><input class="input input-primary" type="tel" placeholder="Price"></td>
                             <td class="split-checkboxes"></td>
-                            <td><button onclick="removeRow(this)">Remove</button></td>
+                            <td><button class="btn btn-error" onclick="removeRow(this)">
+                                Remove
+                            </button></td>
                         `;
                         table.appendChild(row);
                         updateItemRows(); // Add checkboxes dynamically for the new row

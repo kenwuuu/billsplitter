@@ -12168,20 +12168,6 @@
     }
   }
 }
-table {
-  width: 95%;
-  margin: 20px auto;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-th, td {
-  border: 1px solid #000;
-  text-align: center;
-  padding: 8px;
-}
-th {
-  background-color: #f0f0f0;
-}
 button {
   display: block;
   margin: 20px auto;
@@ -12203,14 +12189,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 input {
   font-size: 16px;
-}
-td input[type="tel"] {
-  width: 16vw;
-  box-sizing: border-box;
-}
-td input[type="search"] {
-  width: 16vw;
-  box-sizing: border-box;
 }
 .split-checkboxes label {
   display: inline-flex;
@@ -12235,34 +12213,6 @@ td input[type="search"] {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
-}
-.tooltip {
-  position: relative;
-  cursor: help;
-}
-.tooltip-text {
-  visibility: hidden;
-  width: 180px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 5px;
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.tooltip:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
-}
-.tooltip.active .tooltip-text {
-  visibility: visible;
-  opacity: 1;
 }
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {

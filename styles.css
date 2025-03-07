@@ -3,23 +3,6 @@
 @plugin "daisyui";
 @plugin "@tailwindcss/typography";
 
-table {
-    width: 95%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    table-layout: fixed; /* Prevent dynamic resizing of columns */
-}
-
-th, td {
-    border: 1px solid #000;
-    text-align: center;
-    padding: 8px;
-}
-
-th {
-    background-color: #f0f0f0;
-}
-
 button {
     display: block;
     margin: 20px auto;
@@ -45,16 +28,6 @@ h1, h2, h3, h4, h5, h6 {
 
 input {
     font-size: 16px;
-}
-
-td input[type="tel"] {
-    width: 16vw; /* Input occupies 16% of the window's width */
-    box-sizing: border-box; /* Include padding/borders in the width calculation */
-}
-
-td input[type="search"] {
-    width: 16vw; /* Input occupies 16% of the window's width */
-    box-sizing: border-box; /* Include padding/borders in the width calculation */
 }
 
 .split-checkboxes label {
@@ -83,38 +56,4 @@ td input[type="search"] {
     height: 100%;
     background: rgba(0, 0, 0, 0.5); /* Black background with 50% opacity for dimming */
     z-index: 999; /* Place it beneath the popup but above the rest of the page */
-}
-
-.tooltip {
-    position: relative; /* Needed for positioning the tooltip */
-    cursor: help; /* Optional, indicates additional info is available */
-}
-
-.tooltip-text {
-    visibility: hidden; /* Initially hide the tooltip */
-    width: 180px; /* Adjust the width as needed */
-    background-color: #555; /* Dark background for the tooltip */
-    color: #fff; /* White text color for contrast */
-    text-align: center; /* Center-align the text */
-    border-radius: 5px; /* Rounded corners */
-    padding: 5px;
-    position: absolute; /* Positioned relative to the parent element */
-    bottom: 120%; /* Place it slightly above the element */
-    left: 50%; /* Center the tooltip horizontally */
-    transform: translateX(-50%); /* Center adjustment */
-    z-index: 1; /* Ensure it appears above other elements */
-    opacity: 0; /* Initially invisible */
-    transition: opacity 0.2s; /* Smooth fade-in effect */
-}
-
-/* Show on hover (desktop support) */
-.tooltip:hover .tooltip-text {
-    visibility: visible; /* Show the tooltip on hover */
-    opacity: 1; /* Fully visible */
-}
-
-/* Show on touch interaction or click for mobile */
-.tooltip.active .tooltip-text {
-    visibility: visible; /* Show the tooltip on hover */
-    opacity: 1; /* Fully visible */
 }
