@@ -211,33 +211,40 @@
                         const rows = document.querySelectorAll('#bill-items tr');
                         rows.forEach((row, rowIndex) => {
                             const cell = row.querySelector('.split-checkboxes');
-                            if (!cell) return; // Skip rows without the split-checkboxes cell
+                            if (!cell) return;
 
-                            // Initialize checkbox state
                             if (!checkboxStates[rowIndex]) {
                                 checkboxStates[rowIndex] = {};
                             }
 
-                            cell.innerHTML = ''; // Clear existing checkboxes
+                            cell.innerHTML = '';
+
                             persons.forEach(person => {
-                                const label = document.createElement('label');
+                                const button = document.createElement('button');
+                                button.textContent = person;
+                                button.classList.add('btn', 'btn-xs', 'm-1'); // DaisyUI button classes
 
-                                // Create the checkbox
-                                const checkbox = document.createElement('input');
-                                checkbox.type = 'checkbox';
-                                checkbox.value = person;
+                                // Initialize button state
+                                if (checkboxStates[rowIndex][person]) {
+                                    button.classList.add('btn-primary'); // Highlight selected button
+                                } else {
+                                    button.classList.add('btn-outline'); // Outlined button when not selected
+                                }
 
-                                // Restore previous state if it exists
-                                checkbox.checked = !!checkboxStates[rowIndex][person];
+                                button.addEventListener('click', () => {
+                                    checkboxStates[rowIndex][person] = !checkboxStates[rowIndex][person]; // Toggle state
 
-                                // Listen for changes to update the state
-                                checkbox.addEventListener('change', () => {
-                                    checkboxStates[rowIndex][person] = checkbox.checked;
+                                    // Update button appearance
+                                    if (checkboxStates[rowIndex][person]) {
+                                        button.classList.remove('btn-outline');
+                                        button.classList.add('btn-primary');
+                                    } else {
+                                        button.classList.remove('btn-primary');
+                                        button.classList.add('btn-outline');
+                                    }
                                 });
 
-                                label.appendChild(checkbox);
-                                label.append(` ${person}`);
-                                cell.appendChild(label);
+                                cell.appendChild(button);
                             });
                         });
                     }
