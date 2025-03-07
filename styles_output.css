@@ -4297,6 +4297,9 @@
       gap: calc(0.25rem * 4);
     }
   }
+  .m-1 {
+    margin: calc(var(--spacing) * 1);
+  }
   .\!filter {
     display: flex !important;
     flex-wrap: wrap !important;
@@ -12170,36 +12173,13 @@
 }
 button {
   display: block;
-  margin: 20px auto;
+  margin: auto;
 }
 h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
-.person-checkboxes {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.person-checkboxes label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
-}
 input {
   font-size: 16px;
-}
-.split-checkboxes label {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-  padding-right: 10px;
-}
-.split-checkboxes input[type="checkbox"] {
-  margin: 0;
-  display: inline-block;
 }
 .hidden {
   display: none;
@@ -12213,6 +12193,20 @@ input {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
+}
+.person-checkboxes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.split-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.split-column {
+  width: 250px;
 }
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {

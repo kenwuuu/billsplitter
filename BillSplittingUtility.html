@@ -54,7 +54,7 @@
                         <tr>
                             <th>Menu Item</th>
                             <th>Price</th>
-                            <th>Split With
+                            <th class="split-column">Split With
                                 <a class="tooltip" data-tip="Duplicate names are not allowed."> ?⃝</a>
                             </th>
                             <th>Action</th>
@@ -211,18 +211,18 @@
                         const rows = document.querySelectorAll('#bill-items tr');
                         rows.forEach((row, rowIndex) => {
                             const cell = row.querySelector('.split-checkboxes');
-                            if (!cell) return;
+                            if (!cell) return; // Skip rows without the split-checkboxes cell
 
-                            if (!checkboxStates[rowIndex]) {
+                            if (!checkboxStates[rowIndex]) { // Initialize checkbox state
                                 checkboxStates[rowIndex] = {};
                             }
 
-                            cell.innerHTML = '';
+                            cell.innerHTML = '';  // clear existing checkboxes
 
                             persons.forEach(person => {
                                 const button = document.createElement('button');
                                 button.textContent = person;
-                                button.classList.add('btn', 'btn-xs', 'm-1'); // DaisyUI button classes
+                                button.classList.add('btn', 'btn-sm', 'm-1'); // DaisyUI button classes
 
                                 // Initialize button state
                                 if (checkboxStates[rowIndex][person]) {
@@ -284,13 +284,15 @@
 
                         rows.forEach(row => {
                             const priceInput = row.querySelector('td:nth-child(2) input');
-                            const checkboxes = row.querySelectorAll('.split-checkboxes input:checked');
+                            const checkboxes = row.querySelectorAll('.split-checkboxes .btn-primary');
                             const price = parseFloat(priceInput.value);
 
                             let involvedPersons;
                             if (checkboxes.length > 0) {
                                 // Add only the selected persons
-                                involvedPersons = Array.from(checkboxes).map(checkbox => checkbox.value);
+                                involvedPersons = Array.from(checkboxes)
+                                    .filter(checkbox => checkbox.classList.contains('btn-primary'))
+                                    .map(checkbox => checkbox.textContent.trim());
                             } else {
                                 // If no checkboxes are selected, assume all persons
                                 involvedPersons = persons;

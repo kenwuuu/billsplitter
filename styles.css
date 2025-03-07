@@ -5,42 +5,15 @@
 
 button {
     display: block;
-    margin: 20px auto;
+    margin: auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 
-.person-checkboxes {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.person-checkboxes label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    white-space: nowrap;
-}
-
 input {
     font-size: 16px;
-}
-
-.split-checkboxes label {
-    display: inline-flex;
-    align-items: center; /* Vertically align text with the checkbox */
-    gap: 4px; /* Space between checkbox and label */
-    white-space: nowrap; /* Prevent wrapping inside the label */
-    padding-right: 10px;
-}
-
-.split-checkboxes input[type="checkbox"] {
-    margin: 0; /* Reset default margins to avoid extra spacing issues */
-    display: inline-block; /* Ensure it stays inline with label */
 }
 
 .hidden {
@@ -56,4 +29,21 @@ input {
     height: 100%;
     background: rgba(0, 0, 0, 0.5); /* Black background with 50% opacity for dimming */
     z-index: 999; /* Place it beneath the popup but above the rest of the page */
+}
+
+.person-checkboxes {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.split-checkboxes {
+    display: flex;
+    flex-wrap: wrap; /* Allow content to wrap when it hits the edges */
+    gap: 5px; /* Add spacing between items */
+}
+
+.split-column {
+    width: 250px;
 }
