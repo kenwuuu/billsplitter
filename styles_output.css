@@ -12205,9 +12205,6 @@ input {
   flex-wrap: wrap;
   gap: 5px;
 }
-.split-column {
-  width: 250px;
-}
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {
     color-scheme: light;

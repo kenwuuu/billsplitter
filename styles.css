@@ -43,7 +43,3 @@ input {
     flex-wrap: wrap; /* Allow content to wrap when it hits the edges */
     gap: 5px; /* Add spacing between items */
 }
-
-.split-column {
-    width: 250px;
-}
