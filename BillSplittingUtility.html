@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:x-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,7 +70,7 @@
     <h3 style="text-align: center;">Confirm the Subtotal: $<span id="subtotal">0.00</span></h3>
     <div style="text-align: center; margin-bottom: 20px;">
         <label for="total-input">Total (include tip & tax):</label>
-        <input type="tel" id="total-input" placeholder="Total"/>
+        <input type="tel" id="total-input" placeholder="Total" onkeydown="if(event.key==='Enter') calculateSplit()"/>
     </div>
     <button onclick="calculateSplit()">Calculate Split</button>
 
@@ -90,6 +90,7 @@
     </div>
 
     <script>
+
         // Array to store the list of persons
         const persons = [];
 
@@ -262,7 +263,7 @@
 
             function handleDiscountConfirmation() {
                 alert("Total shouldn't be less than subtotal.");
-                if (confirm("Click ok if you are receiving a discount.")) {
+                if (confirm("Click \"OK\" if you are receiving a discount.")) {
                     return Math.abs(total / subtotal);
                 } else {
                     document.getElementById('total-input').value = ''; // Clear total input
@@ -396,5 +397,7 @@
             }
         }
     </script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 </body>
 </html>
