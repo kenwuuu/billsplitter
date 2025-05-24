@@ -106,7 +106,7 @@
 
             if (persons.length > 0) {
                 updatePersonList();
-                updateItemRows();
+                updateRowCheckboxes();
                 personInput.value = ''; // Clear input field
             }
         }
@@ -185,7 +185,7 @@
             });
         }
 
-        // Function to add a new row for menu items
+        // Adds a new menu item row
         function addItemRow(itemName = "") {
             const table = document.getElementById('bill-items');
             const row = document.createElement('tr');
@@ -196,27 +196,20 @@
                 <td><button onclick="removeRow(this)">Remove</button></td>
             `;
             table.appendChild(row);
-            updateItemRows(); // Add checkboxes dynamically for the new row
+            updateRowCheckboxes(); // Add checkboxes dynamically for the new row
             update_tab_index(); // Update tabindex after adding the row
         }
 
-        // Function to update checkboxes for each row
+        // Handles checkbox state for each row.
+        // Necessary because, for example: we have 5 menu items, and 5 guests, and we add a 6th guest. Every row
+        // needs to be updated with a 6th guest, then when we regenerate the guest list anew after adding the 6th guest,
+        // we need to remember which guests were already previously selected so we can restore previous state.
         const checkboxStates = {};
-        function updateItemRows() {
-            const rows = document.querySelectorAll('#bill-items tr');
-            rows.forEach((row, rowIndex) => {
-                const cell = row.querySelector('.split-checkboxes');
-                if (!cell) return; // Skip rows without the split-checkboxes cell
+        function updateRowCheckboxes() {
+            const rows = document.querySelectorAll('#bill-items tr');  // select all rows
 
-                // Initialize checkbox state
-                if (!checkboxStates[rowIndex]) {
-                    checkboxStates[rowIndex] = {};
-                }
-
-                cell.innerHTML = ''; // Clear existing checkboxes
+            function renderCheckboxes(rowIndex, checkboxContainer) {
                 persons.forEach(person => {
-                    const label = document.createElement('label');
-
                     // Create the checkbox
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -230,14 +223,29 @@
                         checkboxStates[rowIndex][person] = checkbox.checked;
                     });
 
+                    const label = document.createElement('label');
                     label.appendChild(checkbox);
                     label.append(` ${person}`);
-                    cell.appendChild(label);
+                    checkboxContainer.appendChild(label);
                 });
+            }
+
+            rows.forEach((row, rowIndex) => {  // for each row
+                // Select this row's checkboxes
+                const checkboxContainer = row.querySelector('.split-checkboxes');
+                if (!checkboxContainer) return; // Skip rows that don't have checkboxes
+
+                // If new row, initialize new state
+                if (!checkboxStates[rowIndex]) {  // if row state doesn't exist:
+                    checkboxStates[rowIndex] = {};  // initialize it
+                }
+
+                checkboxContainer.innerHTML = ''; // Clear existing checkboxes
+                renderCheckboxes(rowIndex, checkboxContainer);
             });
         }
 
-        // Function to remove a row
+        // Removes a line-item row
         function removeRow(button) {
             const row = button.parentElement.parentElement;
             row.remove();
@@ -251,10 +259,19 @@
             
             if (subtotal === 0) return 0; // Avoid division by zero
             if (!total || total === 0) return 1; // if total is null, undefined, or 0, then return 1
+
+            function handleDiscountConfirmation() {
+                alert("Total shouldn't be less than subtotal.");
+                if (confirm("Click ok if you are receiving a discount.")) {
+                    return Math.abs(total / subtotal);
+                } else {
+                    document.getElementById('total-input').value = ''; // Clear total input
+                    return 1; // Return 1 as a safe default multiplier
+                }
+            }
+
             if (total < subtotal) {
-                alert("Total cannot be less than subtotal.");
-                document.getElementById('total-input').value = ''; // Clear total input
-                return 1; // Return 1 as a safe default multiplier
+                return handleDiscountConfirmation();
             }
             
             return Math.abs((total - subtotal) / subtotal) + 1;
@@ -316,7 +333,7 @@
             checkPopupPreference();
         };
 
-        // everything below is to format all number inputs automatically with decimals
+        // Format all number inputs automatically with decimals
         document.addEventListener('DOMContentLoaded', () => {
             // Function to format input as currency (automatically insert decimal)
             function formatAsCurrency(input) {
@@ -350,7 +367,7 @@
             }).observe(billItemsContainer, { childList: true });
         });
 
-        // check if popup should be shown
+        // Check if popup should be shown
         function checkPopupPreference() {
             // Check if "dontShowPopup" is set in localStorage
             const dontShowPopup = localStorage.getItem('dontShowPopup');
@@ -364,7 +381,7 @@
             }
         }
 
-        // Function to close the popup
+        // Close the popup
         function closePopup() {
             const popup = document.getElementById('popup');
             const overlay = document.getElementById('overlay');
