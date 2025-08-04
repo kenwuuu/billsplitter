@@ -1,115 +1,179 @@
-import express, { Request, Response } from 'express';
-import multer from 'multer';
-import dotenv from 'dotenv';
-import fs from 'fs/promises';
-import path from 'path';
+/**
+ * Welcome to your Cloudflare Worker!
+ *
+ * This worker is designed to:
+ * 1. Accept a POST request containing a receipt image.
+ * 2. Convert the image to a base64 string.
+ * 3. Call the Google Gemini API with the image and a specific prompt.
+ * 4. Instruct Gemini to return a structured JSON object.
+ * 5. Return the JSON response from Gemini directly to the client.
+ *
+ * To deploy this worker:
+ * 1. Make sure you have Wrangler CLI installed.
+ * 2. Create a `wrangler.toml` file (an example is provided below).
+ * 3. Set your Gemini API key as a secret in your Cloudflare account using the command:
+ * `npx wrangler secret put GEMINI_API_KEY`
+ * When prompted, paste your API key.
+ * 4. Deploy the worker with `npx wrangler deploy`.
+ *
+ * How to use the deployed worker:
+ * - Send a POST request to your worker's URL.
+ * - The request body must be `multipart/form-data`.
+ * - The form data must contain a field named `image` with your receipt image file.
+ *
+ * Example using cURL:
+ * curl -X POST \
+ * -F "image=@/path/to/your/receipt.jpg" \
+ * https://your-worker-name.your-subdomain.workers.dev/
+ *
+ */
 
-
-dotenv.config();
-const app = express();
-const upload = multer({ dest: 'uploads/' });
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
-
-interface LineItem {
-  name: string;
-  price: number;
-}
-
-interface Receipt {
-  line_items: LineItem[];
-  total_amount: number;
-}
-
-const receiptSchema = {
-  type: 'object',
-  properties: {
-    line_items: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          price: { type: 'number' },
-        },
-        required: ['name', 'price'],
-      },
-    },
-    total_amount: { type: 'number' },
-  },
-  required: ['line_items', 'total_amount'],
-};
-
-// Helper to encode image file to base64 and determine MIME type
-async function readFileAndEncode(filePath: string): Promise<Part> {
-  const imageBuffer = await fs.readFile(filePath);
-  const mimeType = 'image/png'; // + path.extname(filePath).substring(1); // e.g., 'image/png'
-  return {
-    inlineData: {
-      data: imageBuffer.toString('base64'),
-      mimeType: mimeType,
-    },
-  };
-}
-
-app.post('/parse_receipt/', upload.single('file'), async (req: Request, res: Response) => {
-  try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ error: 'No file uploaded.' });
+// The main fetch handler for the Cloudflare Worker
+export default {
+  async fetch(request, env, ctx) {
+    // We only want to handle POST requests
+    if (request.method !== 'POST') {
+      return new Response('Invalid method. Please send a POST request with the receipt image.', {
+        status: 405,
+        headers: { 'Allow': 'POST' }
+      });
     }
 
-    const filePath = path.resolve(file.path);
-    const imagePart = await readFileAndEncode(filePath); // Use the new helper
+    try {
+      // Extract the multipart form data from the request
+      const formData = await request.formData();
+      // Get the image file from the form data (the field name must be 'image')
+      const imageFile = formData.get('image');
 
-    const prompt = `
-      Parse this receipt and extract the line item prices and the total cost. 
-      Format the output as a JSON object with 'line_items' (a list of dicts with keys: {name, price}) 
-      and 'total_amount' (a float).
-    `;
+      // Check if the image file exists and is actually a file
+      if (!imageFile || typeof imageFile === 'string') {
+        return new Response(JSON.stringify({ error: "An 'image' file must be provided in the form data." }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
 
-    console.log('filepath', filePath)
+      // Convert the image file's ArrayBuffer to a base64 string for the API call
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const base64ImageData = arrayBufferToBase64(arrayBuffer);
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=' + GEMINI_API_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      // This is the specific prompt to instruct Gemini on how to process the image
+      const prompt = "Parse this receipt and extract the line item prices and the total cost. Format the output as a JSON object with 'line_items' (a list of dicts with keys: {name, price}) and 'total_amount' (a float).";
+
+      // This is the payload we will send to the Gemini API
+      const payload = {
         contents: [{
-          parts: [
-            { text: prompt },
-            imagePart,
-          ],
+          role: "user",
+          parts: [{
+            text: prompt
+          }, {
+            inlineData: {
+              mimeType: imageFile.type,
+              data: base64ImageData
+            }
+          }]
         }],
+        // We use generationConfig to ask for a specific JSON format in the response.
+        // This is more reliable than just asking in the prompt text.
         generationConfig: {
           responseMimeType: "application/json",
-        },
-      }),
-    });
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              "line_items": {
+                "type": "ARRAY",
+                "items": {
+                  "type": "OBJECT",
+                  "properties": {
+                    "name": { "type": "STRING" },
+                    "price": { "type": "NUMBER" }
+                  },
+                  "required": ["name", "price"]
+                }
+              },
+              "total_amount": { "type": "NUMBER" }
+            },
+            "required": ["line_items", "total_amount"]
+          }
+        }
+      };
 
-    const responseText = await response.text();
+      // Retrieve the Gemini API key from the worker's secrets
+      const apiKey = env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return new Response(JSON.stringify({ error: 'GEMINI_API_KEY secret is not configured.' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
 
-    // Add a check to ensure responseText is not empty or malformed before parsing
-    if (!responseText || !responseText.trim().startsWith('{')) {
-      console.error('Invalid JSON response:', responseText);
-      return res.status(500).json({ error: 'Invalid JSON response from AI.' });
-    }
+      // The Gemini API endpoint for the specified model
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
 
-    const responseJson = JSON.parse(responseText);
-    const receiptText = responseJson['candidates'][0]['content']['parts'][0]['text'];
+      // Make the API call to the Gemini model
+      const geminiResponse = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    const parsed: Receipt = JSON.parse(receiptText);
-    return res.json(parsed);
-  } catch (error: any) {
-    console.error('Parsing error:', error);
-    return res.status(500).json({ error: error.message || 'Something went wrong.' });
-  } finally {
-    if (req.file?.path) {
-      fs.unlink(req.file.path).catch(console.error);
+      // Handle non-successful responses from the Gemini API
+      if (!geminiResponse.ok) {
+        const errorText = await geminiResponse.text();
+        console.error("Gemini API Error:", errorText);
+        return new Response(JSON.stringify({
+          error: `Error from Gemini API: ${geminiResponse.statusText}`,
+          details: errorText
+        }), {
+          status: geminiResponse.status,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      const result = await geminiResponse.json();
+
+      // Extract the JSON text from the response payload
+      const responseText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!responseText) {
+        console.error("Unexpected Gemini API response structure:", JSON.stringify(result, null, 2));
+        return new Response(JSON.stringify({ error: 'Failed to parse receipt due to an unexpected API response.' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Since we requested "application/json" as the response MIME type,
+      // the 'responseText' is already a well-formatted JSON string.
+      // We return it directly with the correct content type.
+      return new Response(responseText, {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+    } catch (error) {
+      // Catch any unexpected errors during the process
+      console.error('Error processing request:', error);
+      return new Response(JSON.stringify({ error: 'An internal server error occurred.' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
   }
-});
+};
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+/**
+ * Helper function to convert an ArrayBuffer to a base64 string.
+ * @param {ArrayBuffer} buffer The ArrayBuffer from the image file.
+ * @returns {string} The base64 encoded string.
+ */
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
