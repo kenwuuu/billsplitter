@@ -1,3 +1,6 @@
+import tempfile
+from pathlib import Path
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
@@ -23,20 +26,23 @@ class Receipt(BaseModel):
 
 
 @app.post("/parse_receipt/")
-async def parse_receipt(file: UploadFile = File(...)):
+async def parse_receipt(image: UploadFile = File(...)):
     """
     Upload a receipt image and get parsed line items and total amount.
     """
     try:
-        # Read the image file
-        image_data = await file.read()
+        # Write uploaded image to temp file because it just has to be this way
+        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(image.filename).suffix) as temp:
+            temp.write(await image.read())
+            temp_path = temp.name
 
-        # Prepare the prompt for the Gemini model
-        receipt_image = client.files.upload(file='tests/test_images/test.png')
+        # Upload to Gemini then delete temp file
+        receipt_image = client.files.upload(file=temp_path)
+        os.remove(temp_path)
+
         prompt = ("Parse this receipt and extract the line item prices and the total cost. "
                   "Format the output as a JSON object with 'line_items' (a list of dicts with keys: {item, price}) "
                   "and 'total_amount' (a float).")
-
 
         response = client.models.generate_content(
             model='gemini-2.5-flash-lite',
@@ -49,6 +55,9 @@ async def parse_receipt(file: UploadFile = File(...)):
 
         response_text = response.text
         parsed_data = json.loads(response_text)
+
+        if isinstance(parsed_data, list):
+            parsed_data = parsed_data[0]
 
         # Validate the parsed data against the Pydantic model
         receipt_info = Receipt(**parsed_data)
