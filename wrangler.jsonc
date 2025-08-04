@@ -1,0 +1,8 @@
+{
+  "name": "receipt-parser",
+  "compatibility_date": "2025-08-04",
+  "main": "src/services/receipt_parser.ts",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
