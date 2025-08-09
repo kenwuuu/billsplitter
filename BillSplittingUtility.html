@@ -47,11 +47,21 @@
                    style="padding: 5px; width: 300px;" autocomplete="off"/>
             <button type="submit" style="display: none;">Add Item</button>
         </form>
+
+        <!-- NEW: Upload Receipt Button -->
+        <div style="margin-top: 10px;">
+            <div id="upload-error" style="color: red; display: none;"></div>
+            <div id="upload-loader" style="display: none;">Processing receipt...</div>
+            <label style="cursor: pointer;">
+                <input type="file" id="receipt-upload" accept="image/*" capture="environment" style="display: none;">
+                Upload receipt
+            </label>
+        </div>
     </div>
 
     <!-- Dynamic person list -->
     <div id="person-list" class="person-checkboxes">
-        <span>No persons added yet.</span>
+        <span>No people added yet.</span>
     </div>
 
     <!-- Items table -->
@@ -198,12 +208,12 @@
         }
 
         // Adds a new menu item row
-        function addItemRow(itemName = "") {
+        function addItemRow(itemName = "", price = 0) {
             const table = document.getElementById('bill-items');
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td><input type="text" value="${itemName}" placeholder="Item Name" autocomplete="off"></td>
-                <td><input type="tel" placeholder="Price"></td>
+                <td><input type="tel" value="${price}" placeholder="Price"></td>
                 <td class="split-checkboxes"></td>
                 <td><button onclick="removeRow(this)">Remove</button></td>
             `;
@@ -263,12 +273,12 @@
             row.remove();
             update_tab_index(); // Update tabindex after removing the row
         }
-        
+
         // Calculate percentage increase between subtotal and total
         function calculatePercentageIncreaseMultiplier() {
             const total = parseFloat(document.getElementById('total-input').value)
             const subtotal = parseFloat(document.getElementById('subtotal').textContent);
-            
+
             if (subtotal === 0) return 0; // Avoid division by zero
             if (!total || total === 0) return 1; // if total is null, undefined, or 0, then return 1
 
@@ -285,7 +295,7 @@
             if (total < subtotal) {
                 return handleDiscountConfirmation();
             }
-            
+
             return Math.abs((total - subtotal) / subtotal) + 1;
         }
 
@@ -406,6 +416,87 @@
                 // Save preference in localStorage
                 localStorage.setItem('dontShowPopup', 'true');
             }
+        }
+
+        // NEW: Receipt upload logic
+        document.getElementById('receipt-upload').addEventListener('change', async function() {
+            const errorEl = document.getElementById('upload-error');
+            const loaderEl = document.getElementById('upload-loader');
+            errorEl.style.display = 'none';
+
+            const file = this.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                errorEl.textContent = 'File is too large. Max 5MB.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            loaderEl.style.display = 'block';
+            try {
+                const compressedFile = await compressImage(file, 0.8);
+                const formData = new FormData();
+                formData.append('image', compressedFile);
+
+                // const res = await fetch('http://localhost:8787/parse_receipt/', {
+                const res = await fetch('https://receipt-parser.kenqiwu-1b0.workers.dev/parse_receipt/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error('Upload failed');
+
+                const data = await res.json();
+
+                // Replace table items
+                document.getElementById('bill-items').innerHTML = '';
+                for (const item of data.line_items) {
+                    console.log(item.price.toFixed(2))
+
+                    addItemRow(item.name, item.price.toFixed(2));
+                }
+
+                // Update total if provided
+                if (data.total_amount) {
+                    document.getElementById('total-input').value = data.total_amount.toFixed(2);
+                }
+
+                updateSubtotal();
+            } catch (err) {
+                errorEl.textContent = 'Error processing receipt.';
+                errorEl.style.display = 'block';
+            } finally {
+                loaderEl.style.display = 'none';
+                this.value = '';
+            }
+        });
+
+        // Compress image using canvas
+        function compressImage(file, quality = 0.8) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Keep original size, just compress
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+
+                        canvas.toBlob(blob => {
+                            resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = reject;
+                    img.src = event.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
     </script>
 
