@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - old
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -17,6 +16,13 @@ jobs:
   build-and-deploy:
     # Specifies the runner environment for the job
     runs-on: ubuntu-latest
+
+    # Add permissions for GitHub Pages deployment
+    # This is crucial for the GITHUB_TOKEN to have write access to the gh-pages branch.
+    permissions:
+      contents: write # Allows the action to write to the repository
+      pages: write    # Allows the action to deploy to GitHub Pages
+      id-token: write # Required for OIDC authentication by actions-gh-pages for GH Pages
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
