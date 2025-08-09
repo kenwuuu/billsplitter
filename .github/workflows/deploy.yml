@@ -1,0 +1,57 @@
+# Workflow name
+name: Deploy Vue.js App to GitHub Pages
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push events to the 'main' branch
+  push:
+    branches:
+      - main
+      - old
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This job handles building and deploying the application
+  build-and-deploy:
+    # Specifies the runner environment for the job
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Step 1: Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Sets up Node.js environment
+      # We recommend using the same Node.js version you use locally for consistency.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Specify your Node.js version here (e.g., '16', '18', '20')
+          cache: 'npm'
+          cache-dependency-path: vue-app/package-lock.json # Caches npm dependencies specific to the vue-app
+
+      # Step 3: Install dependencies for the Vue.js application
+      # The 'working-directory' specifies that this command runs inside the 'vue-app' folder.
+      - name: Install dependencies
+        run: npm install
+        working-directory: vue-app
+
+      # Step 4: Build the Vue.js application for production
+      # This command generates the static files in the 'dist' directory within 'vue-app'.
+      - name: Build Vue.js app
+        run: npm run build
+        working-directory: vue-app
+
+      # Step 5: Deploy the built application to GitHub Pages
+      # This action automatically handles pushing the 'dist' folder content to the 'gh-pages' branch.
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4 # Use a robust action for GitHub Pages deployment
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub's default token for authentication
+          publish_dir: ./vue-app/dist # Specifies the directory to publish (relative to the repository root)
+          # cname: example.com # Uncomment and replace with your custom domain if you have one
+          # publish_branch: gh-pages # Default branch for GitHub Pages, explicitly set for clarity
+          # force_orphan: true # Uncomment if you want to remove all previous files from the gh-pages branch
