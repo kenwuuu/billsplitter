@@ -30,7 +30,7 @@
 
 // The main fetch handler for the Cloudflare Worker
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request: { method: string; formData: () => any; }, env: { GEMINI_API_KEY: string; }, ctx: any) {
     // We only want to handle POST requests
     if (request.method !== 'POST') {
       return new Response('Invalid method. Please send a POST request with the receipt image.', {
@@ -133,6 +133,7 @@ export default {
       const result = await geminiResponse.json();
 
       // Extract the JSON text from the response payload
+      // @ts-ignore
       const responseText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
 
       if (!responseText) {
@@ -167,7 +168,7 @@ export default {
  * @param {ArrayBuffer} buffer The ArrayBuffer from the image file.
  * @returns {string} The base64 encoded string.
  */
-function arrayBufferToBase64(buffer) {
+function arrayBufferToBase64(buffer: Iterable<number>): string {
   let binary = '';
   const bytes = new Uint8Array(buffer);
   const len = bytes.byteLength;
