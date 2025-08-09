@@ -31,6 +31,16 @@
 // The main fetch handler for the Cloudflare Worker
 export default {
   async fetch(request: { method: string; formData: () => any; }, env: { GEMINI_API_KEY: string; }, ctx: any) {
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
+    }
+
     // We only want to handle POST requests
     if (request.method !== 'POST') {
       return methodNotAllowedResponse();
@@ -59,7 +69,12 @@ export default {
       // Return the JSON directly to the client
       return new Response(responseText, {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*', // or your domain
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
       });
 
     } catch (error) {
